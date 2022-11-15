@@ -29,7 +29,7 @@ const processContactErrors = (command: string, lineNum: number, mode: number) =>
 }
 
 const createContact = (command: string, lineNum: number) => {
-    const regex = /^Создай контакт (|[^ ][^;]*);$/;
+    const regex = /^Создай контакт (|[^;]*);$/;
     if (regex.test(command)) {
         const newContactKey: string = command.slice(15, -1);
         if (phoneBook.has(newContactKey)) {
@@ -45,7 +45,7 @@ const createContact = (command: string, lineNum: number) => {
 }
 
 const deleteContact = (command: string, lineNum: number) => {
-    const regex = /^Удали контакт (|[^ ][^;]*);$/;
+    const regex = /^Удали контакт (|[^;]*);$/;
     if (regex.test(command)) {
         const key = command.slice(14, -1)
         if (phoneBook.has(key)) {
@@ -138,7 +138,7 @@ const processInfoErrors = (command: string, lineNum: number, mode: number) => {
 
 const processInfo = (command: string, lineNum: number, mode: number) => {
     const curCommand = command.slice(6 + mode)
-    const regex = /^((телефон \d{10})|(почту [^ ]+))( и ((телефон \d{10})|(почту [^ ]+)))* для контакта (|[^ ][^;]*);$/;
+    const regex = /^((телефон \d{10})|(почту [^ ;]+))( и ((телефон \d{10})|(почту [^ ;]+)))* для контакта (|[^;]*);$/;
     if (regex.test(curCommand)) {
         const phonesAndMails = command.slice(6 + mode, command.indexOf(' для контакта'))
             .split(' ')
@@ -181,35 +181,26 @@ const testForQuery = (key: string, value: { get: (arg0: string) => Set<string>; 
 }
 
 const processProbablySearchFields = (command: string, lineNum: number) => {
-    let probablyFields = command.slice(7).split(' ');
-    let position = 8;
-    let prevToken = 'и'
-    for (let k = 0; k < probablyFields.length; k++) {
-        let curToken = probablyFields[k]
-        if (prevToken !== 'и' && curToken === 'для') {
-            return position + 3;
-        }
-        if (!tokenAdditions.has(curToken)) {
-            syntaxError(lineNum, position);
-        }
-        let curAdd = tokenAdditions.get(curToken);
-        if (prevToken === 'и') {
-            if (!namePhonesEmails.has(curToken)) {
-                syntaxError(lineNum, position);
-            } else {
-                position += curAdd;
-                prevToken = curToken;
-            }
-        } else {
-            if ('и' !== curToken) {
-                syntaxError(lineNum, position);
-            } else {
-                position += curAdd;
-                prevToken = curToken;
-            }
-        }
+    let position = 7;
+    while (true) {
+        if (command.slice(position, position+6) === "почты ") {
+            position += 6
+        } else if (command.slice(position, position + 9) === "телефоны ") {
+            position += 9
+        } else if (command.slice(position, position + 4) === "имя ") {
+            position += 4
+        } else if (command.slice(position, position + 2) === "и ") {
+            position += 2
+        } else syntaxError(lineNum, position+1)
+
+        if (command.slice(position, position + 2) === "и ") {
+            position += 2
+        } else if (command.slice(position, position + 4) === "для ") {
+            position += 4
+            break
+        } else syntaxError(lineNum, position+1)
     }
-    syntaxError(lineNum, command.length + 1)
+    return position;
 }
 
 const processShowErrors = (command: string, lineNum: number) => {
@@ -224,26 +215,13 @@ const processShowErrors = (command: string, lineNum: number) => {
     if (command.slice(position + 15, position + 20) !== 'есть ') {
         syntaxError(lineNum, position + 16)
     }
-    if (command.charAt(position + 20) === ' ') {
-        syntaxError(lineNum, position + 21)
-    }
     if (command.charAt(command.length - 1) !== ';') {
         syntaxError(lineNum, command.length);
     }
 }
 
-const tokenAdditions = new Map([
-    ['имя', 4],
-    ['почты', 6],
-    ['телефоны', 9],
-    ['и', 2],
-    ['для', 4],
-])
-
-const namePhonesEmails = new Set(['имя', 'почты', 'телефоны'])
-
 const showForQuery = (command: string, lineNum: number) => {
-    const regex = /^Покажи (имя|почты|телефоны)( и (имя|почты|телефоны))* для контактов, где есть (|[^ ][^;]*);$/;
+    const regex = /^Покажи (имя|почты|телефоны)( и (имя|почты|телефоны))* для контактов, где есть (|[^;]*);$/;
     if (regex.test(command)) {
         const fields: string[] = command
             .slice(7, command.indexOf('для контактов'))
@@ -282,7 +260,7 @@ const processDeleteByQueryErrors = (command:string, lineNum:number) => {
 }
 
 const deleteContactByQuery = (command: string, lineNum: number) => {
-    const regex = /^Удали контакты, где есть (|[^ ][^;]*);$/;
+    const regex = /^Удали контакты, где есть (|[^;]*);$/;
     if (regex.test(command)) {
         const query = command.slice(25, -1);
         if (query === '') return;
@@ -409,4 +387,8 @@ console.log('8. ' + run(''))
 console.log('----------------------------------------------------------------------------------------------------------');
 phoneBook.clear();
 console.log('9. ')
-console.log(run('Создай контакт ;' + 'Добавь телефон 8005553535 для контакта ;' +'Покажи имя для контактов, где есть 8;'))
+console.log(run('Создай контакт ;' + 'Добавь телефон 8005553535 для контакта ;' +'Покажи имя для контактов, где есть 8;'));
+console.log('----------------------------------------------------------------------------------------------------------');
+phoneBook.clear();
+console.log('10. ')
+console.log(run('Покажи имя для контактов, где есть  ;'))
