@@ -20,11 +20,8 @@ const processContactErrors = (command: string, lineNum: number, mode: number) =>
     if (command.slice(6 + mode, 14 + mode) !== 'контакт ') {
         syntaxError(lineNum, 7 + mode);
     }
-    if (command.charAt(14 + mode) === ' ') {
-        syntaxError(lineNum, 15 + mode);
-    }
-    if (!command.slice(14 + mode).includes(';')) {
-        syntaxError(lineNum, command.length + mode);
+    if (command.charAt(command.length - 1) !== ';') {
+        syntaxError(lineNum, command.length + 1 + mode);
     }
 }
 
@@ -132,7 +129,7 @@ const processInfoErrors = (command: string, lineNum: number, mode: number) => {
         syntaxError(lineNum, position + 10);
     }
     if (command.charAt(command.length - 1) !== ';') {
-        syntaxError(lineNum, command.length);
+        syntaxError(lineNum, command.length+1);
     }
 }
 
@@ -216,7 +213,7 @@ const processShowErrors = (command: string, lineNum: number) => {
         syntaxError(lineNum, position + 16)
     }
     if (command.charAt(command.length - 1) !== ';') {
-        syntaxError(lineNum, command.length);
+        syntaxError(lineNum, command.length+1);
     }
 }
 
@@ -255,7 +252,7 @@ const processDeleteByQueryErrors = (command:string, lineNum:number) => {
         syntaxError(lineNum,26)
     }
     if (command.charAt(command.length-1) !== ';') {
-        syntaxError(lineNum, command.length)
+        syntaxError(lineNum, command.length+1)
     }
 }
 
@@ -391,4 +388,4 @@ console.log(run('Создай контакт ;' + 'Добавь телефон 8
 console.log('----------------------------------------------------------------------------------------------------------');
 phoneBook.clear();
 console.log('10. ')
-console.log(run('Покажи имя для контактов, где есть  ;'))
+console.log(run('Покажи имя для контактов, где есть фы'))
