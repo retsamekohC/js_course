@@ -170,7 +170,7 @@ const getStringForFields = (fields: string[], phoneBookKey: string,) => {
                 break;
         }
     }
-    return result.filter((el:string) => el !== '').join(';');
+    return result.join(';');
 }
 
 const testForQuery = (key: string, value: { get: (arg0: string) => Set<string>; }, query: string) => {
@@ -254,7 +254,7 @@ const showForQuery = (command: string, lineNum: number) => {
         const result: string[] = [];
         for (const [key, value] of phoneBook) {
             if (testForQuery(key, value, query)) {
-                result.push(getStringForFields(fields, key) + ';');
+                result.push(getStringForFields(fields, key));
             }
         }
         return result;
@@ -352,7 +352,7 @@ module.exports = {phoneBook, run};
 
 console.log(run(
     'Создай контакт Григорий;' +
-    'Добавь телефон 5556667788 для контакта Григорий;' +
-    'Удали телефон 5556667788 для контакта Григорий;' +
-    'Покажи имя и телефоны для контактов, где есть ий;'
+    'Создай контакт Василий;' +
+    'Создай контакт Иннокентий;' +
+    'Покажи имя для контактов, где есть;'
 ))
