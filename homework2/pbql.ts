@@ -29,7 +29,7 @@ const processContactErrors = (command: string, lineNum: number, mode: number) =>
 }
 
 const createContact = (command: string, lineNum: number) => {
-    const regex = /^Создай контакт [^ ;]+?[^;]*;$/;
+    const regex = /^Создай контакт (|[^ ][^;]*);$/;
     if (regex.test(command)) {
         const newContactKey: string = command.slice(15, -1);
         if (phoneBook.has(newContactKey)) {
@@ -45,7 +45,7 @@ const createContact = (command: string, lineNum: number) => {
 }
 
 const deleteContact = (command: string, lineNum: number) => {
-    const regex = /^Удали контакт [^ ;]+?[^;]*;$/;
+    const regex = /^Удали контакт (|[^ ][^;]*);$/;
     if (regex.test(command)) {
         const key = command.slice(14, -1)
         if (phoneBook.has(key)) {
@@ -138,7 +138,7 @@ const processInfoErrors = (command: string, lineNum: number, mode: number) => {
 
 const processInfo = (command: string, lineNum: number, mode: number) => {
     const curCommand = command.slice(6 + mode)
-    const regex = /^((телефон \d{10})|(почту [^ ]+))( и ((телефон \d{10})|(почту [^ ]+)))* для контакта [^ ;]+?[^;]*;$/;
+    const regex = /^((телефон \d{10})|(почту [^ ]+))( и ((телефон \d{10})|(почту [^ ]+)))* для контакта (|[^ ][^;]*);$/;
     if (regex.test(curCommand)) {
         const phonesAndMails = command.slice(6 + mode, command.indexOf(' для контакта'))
             .split(' ')
@@ -243,14 +243,14 @@ const tokenAdditions = new Map([
 const namePhonesEmails = new Set(['имя', 'почты', 'телефоны'])
 
 const showForQuery = (command: string, lineNum: number) => {
-    const regex = /^Покажи (имя|почты|телефоны)( и (имя|почты|телефоны))* для контактов, где есть [^ ;]+?[^;]*;$/;
+    const regex = /^Покажи (имя|почты|телефоны)( и (имя|почты|телефоны))* для контактов, где есть (|[^ ][^;]*);$/;
     if (regex.test(command)) {
         const fields: string[] = command
             .slice(7, command.indexOf('для контактов'))
             .split(' ')
             .filter(word => word !== 'и' && word !== '');
         const query: string = command.slice(command.indexOf('где есть') + 9, -1);
-        if (query === '') return;
+        if (query === '') return [];
         const result: string[] = [];
         for (const [key, value] of phoneBook) {
             if (testForQuery(key, value, query)) {
@@ -282,7 +282,7 @@ const processDeleteByQueryErrors = (command:string, lineNum:number) => {
 }
 
 const deleteContactByQuery = (command: string, lineNum: number) => {
-    const regex = /^Удали контакты, где есть [^ ;]+?[^;]*;$/;
+    const regex = /^Удали контакты, где есть (|[^ ][^;]*);$/;
     if (regex.test(command)) {
         const query = command.slice(25, -1);
         if (query === '') return;
@@ -350,9 +350,7 @@ function run(query: string) {
 
 module.exports = {phoneBook, run};
 
-console.log(run(
-    'Создай контакт Григорий;' +
+console.log(run('Создай контакт Григорий;' +
     'Создай контакт Василий;' +
     'Создай контакт Иннокентий;' +
-    'Покажи имя для контактов, где есть;'
-))
+    'Покажи имя для контактов, где есть ;'))
