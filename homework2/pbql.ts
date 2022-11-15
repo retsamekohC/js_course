@@ -306,26 +306,22 @@ function handleCommand(command: string, lineNum: number) {
         return;
     }
     let result: string[] = [];
-    switch (words[0]) {
-        case 'Создай':
-            createContact(command, lineNum);
-            break;
-        case 'Покажи':
-            result = showForQuery(command, lineNum);
-            break;
-        case 'Добавь':
-            processInfo(command, lineNum, 1);
-            break;
-        case 'Удали':
-            if (deleteThings.has(words[1])) {
-                processInfo(command, lineNum, 0);
-            } else if (words[1] === 'контакт') {
-                deleteContact(command, lineNum)
-            } else if (words[1] === 'контакты') {
-                deleteContactByQuery(command, lineNum)
-            } else {
-                syntaxError(lineNum, 7);
-            }
+    if (words[0] === 'Создай')
+        createContact(command, lineNum);
+    if (words[0] === 'Покажи')
+        result = showForQuery(command, lineNum);
+    if (words[0] === 'Добавь')
+        processInfo(command, lineNum, 1);
+    if (words[0] === 'Удали') {
+        if (deleteThings.has(words[1])) {
+            processInfo(command, lineNum, 0);
+        } else if (words[1] === 'контакт') {
+            deleteContact(command, lineNum)
+        } else if (words[1] === 'контакты,') {
+            deleteContactByQuery(command, lineNum)
+        } else {
+            syntaxError(lineNum, 7);
+        }
     }
     return result;
 }
@@ -350,7 +346,67 @@ function run(query: string) {
 
 module.exports = {phoneBook, run};
 
-console.log(run('Создай контакт Григорий;' +
+console.log('1. ')
+console.log(run('Покажи имя для контактов, где есть ий;'))
+console.log('----------------------------------------------------------------------------------------------------------');
+phoneBook.clear();
+console.log('2. ')
+console.log(run(
+    'Создай контакт Григорий;' +
     'Создай контакт Василий;' +
     'Создай контакт Иннокентий;' +
-    'Покажи имя для контактов, где есть ;'))
+    'Покажи имя для контактов, где есть ий;'
+))
+console.log('----------------------------------------------------------------------------------------------------------');
+phoneBook.clear();
+console.log('3. ')
+console.log(run(
+    'Создай контакт Григорий;' +
+    'Создай контакт Василий;' +
+    'Создай контакт Иннокентий;' +
+    'Покажи имя и имя и имя для контактов, где есть ий;'
+))
+console.log('----------------------------------------------------------------------------------------------------------');
+phoneBook.clear();
+console.log('4. ')
+console.log(run(
+    'Создай контакт Григорий;' +
+    'Покажи имя для контактов, где есть ий;' +
+    'Покажи имя для контактов, где есть ий;'
+))
+console.log('----------------------------------------------------------------------------------------------------------');
+phoneBook.clear();
+console.log('5. ')
+console.log(run(
+    'Создай контакт Григорий;' +
+    'Создай контакт Вася;' +
+    'Создай контакт ;' +
+    'Удали контакт Григорий;' +
+    'Покажи имя для контактов, где есть ий;' +
+    'Покажи имя для контактов, где есть ;'
+))
+console.log('----------------------------------------------------------------------------------------------------------');
+phoneBook.clear();
+console.log('6. ')
+console.log(run(
+    'Создай контакт Григорий;' +
+    'Добавь телефон 5556667787 для контакта Григорий;' +
+    'Добавь телефон 5556667788 и почту grisha@example.com для контакта Григорий;' +
+    'Покажи имя и телефоны и почты для контактов, где есть ий;'
+))
+console.log('----------------------------------------------------------------------------------------------------------');
+phoneBook.clear();
+console.log('7. ')
+console.log(run(
+    'Создай контакт Григорий;' +
+    'Добавь телефон 5556667788 для контакта Григорий;' +
+    'Удали телефон 5556667788 для контакта Григорий;' +
+    'Покажи имя и телефоны для контактов, где есть ий;'
+))
+console.log('----------------------------------------------------------------------------------------------------------');
+phoneBook.clear();
+console.log('8. ' + run(''))
+console.log('----------------------------------------------------------------------------------------------------------');
+phoneBook.clear();
+console.log('9. ')
+console.log(run('Создай контакт ;' + 'Добавь телефон 8005553535 для контакта ;' +'Покажи имя для контактов, где есть 8;'))
